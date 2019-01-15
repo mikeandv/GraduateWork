@@ -13,7 +13,7 @@ public class GETHandler extends HttpHandler {
 
             String tmp1 = request.getHeader().get("accept");
             if (tmp1.contains("text/html")) {
-
+                // TODO: 15.01.2019 Добавить проверку валидности названия запрашиваемого ресурса
                     this.response.buildResponse(200, request.getUrl());
                     return this.response;
             }

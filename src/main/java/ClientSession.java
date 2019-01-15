@@ -36,26 +36,11 @@ public class ClientSession implements Runnable {
     }
 
     private void sendResponse(Response response, OutputStream out) throws IOException{
-
-//        InputStream strm = HttpServer.class.getResourceAsStream(request.getUrl());
-//        int code = (strm != null) ? 200 : 404;
-//        String header = getHeader(code);
-//        PrintStream answer = new PrintStream(out, true, "UTF-8");
-//        answer.print(header);
-//        if (code == 200) {
-//            int count = 0;
-//            byte[] buffer = new byte[1024];
-//            while((count = strm.read(buffer)) != -1) {
-//                out.write(buffer, 0, count);
-//            }
-//            strm.close();
-//        }
         writeData(response.getHeader(), out);
         writeData(response.getData(), out);
     }
 
     private void writeData(InputStream inRead, OutputStream outWrite) throws IOException {
-
 
         BufferedInputStream buffRead = new BufferedInputStream(inRead);
         BufferedOutputStream buffOut = new BufferedOutputStream(outWrite);

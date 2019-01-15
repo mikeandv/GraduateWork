@@ -8,7 +8,8 @@ public class Response {
             {"200", "OK"},
             {"404", "Not Found"},
             {"400", "Bad Request"},
-            {"401", "Unauthorized"}
+            {"401", "Unauthorized"},
+            {"500", "Internal Server Error"}
     };
     //private int code;
     private String header;
@@ -38,16 +39,13 @@ public class Response {
     }
 
     private String getAnswer(int code) {
-        switch (code) {
-            case 200:
-                return "OK";
-            case 404:
-                return "Not Found";
-            case 401:
-                return "Unauthorized";
-            default:
-                return "Internal Server Error";
+
+        for(int i = 0; i < HTTP_REPLIES.length; i++) {
+            if(HTTP_REPLIES[i][0].equals(String.valueOf(code)))
+                return HTTP_REPLIES[i][1];
         }
+        return null; // TODO: 15.01.2019 Нужно посмотреть насколько это правильно будет работать
+
     }
 
     public InputStream getData() {
