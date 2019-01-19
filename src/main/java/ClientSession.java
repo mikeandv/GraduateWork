@@ -27,6 +27,8 @@ public class ClientSession implements Runnable {
             HttpHandler handler = new HttpHandler();
 
             this.response = handler.requestProceed(this.request);
+
+            System.out.println(this.response.toString());
             sendResponse(response, out);
 
 
@@ -37,7 +39,10 @@ public class ClientSession implements Runnable {
 
     private void sendResponse(Response response, OutputStream out) throws IOException{
         writeData(response.getHeader(), out);
-        writeData(response.getData(), out);
+
+        InputStream tmp = response.getData();
+        if(!(tmp == null))
+            writeData(tmp, out);
     }
 
     private void writeData(InputStream inRead, OutputStream outWrite) throws IOException {

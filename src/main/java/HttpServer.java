@@ -28,5 +28,7 @@ public class HttpServer{
         server.start();
         //System.out.println(ServerConfig.getConfig().getParam("web.port"));
 
+//        File tempForCountBytes = new File(Response.class.getClassLoader().getResource("www/vendor/bootstrap/css/bootstrap.min.css").getFile());
+
     }
 }

@@ -1,7 +1,9 @@
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class Response {
     private final String[][] HTTP_REPLIES = {
@@ -14,6 +16,8 @@ public class Response {
     //private int code;
     private String header;
     private String data;
+    private long contentLength = 0;
+    private String contentType;
 
     public Response() {
     }
@@ -24,16 +28,22 @@ public class Response {
 
         if(code == 200) {
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
-            buffer.append("WWW-Authenticate: Basic realm=\"User Visible Realm\"");
+//            buffer.append("WWW-Authenticate: Basic realm=\"User Visible Realm\"");
             buffer.append("Date: " + d.format(new Date()) + "\n");
-            buffer.append("Accept-Ranges: none\n");
-            buffer.append("Content-Type: " + "text/html" + "\n");
-            buffer.append("\n");
+            buffer.append("Content-Type: " + contentType + "\n");
+
+            if(contentLength != 0) {
+                buffer.append("Accept-Ranges: bytes\n");
+                buffer.append("Content-Length: " + contentLength + "\n");
+            }
+            buffer.append("\r\n");
         } else if(code == 401){
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
-            buffer.append("WWW-Authenticate: Basic realm=\"User Visible Realm\"");
+//            buffer.append("WWW-Authenticate: Basic realm=\"User Visible Realm\"\n");
+            buffer.append("\r\n");
         } else {
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
+            buffer.append("\r\n");
         }
         return buffer.toString();
     }
@@ -54,6 +64,9 @@ public class Response {
 //            String stringData = String.valueOf(this.data);
 //            return new ByteArrayInputStream(stringData.getBytes())
 //        } else {
+        if(data == null) {
+            return null;
+        }
             return Response.class.getClassLoader().getResourceAsStream(data);
 //        }
     }
@@ -63,9 +76,33 @@ public class Response {
     }
 
 
-    public void buildResponse(int code, String data) {
-        this.header = getHeader(code);
+    public void buildResponse(int code, String data, String contentType) {
         this.data = data;
+        // TODO: 16.01.2019 вынести в отдельный метод
+        this.contentLength = getDataBytesCount(data);
+        this.contentType = contentType;
+        this.header = getHeader(code);
+
+    }
+    private long  getDataBytesCount(String tempData) {
+
+        File tempForCountBytes = new File(Objects.requireNonNull(Response.class.getClassLoader().getResource(tempData)).getFile());
+        if(tempForCountBytes.exists() && !tempForCountBytes.isDirectory()){
+            return tempForCountBytes.length();
+        } else {
+            return tempData.getBytes().length;
+        }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Response:\n");
+        sb.append(this.header);
+        if(this.data == null)
+            sb.append("No data in body");
+        else
+            sb.append(this.data);
+        return sb.toString();
+    }
 }

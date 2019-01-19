@@ -5,11 +5,13 @@ import java.util.Properties;
 
 public class ServerConfig {
 
-    private static final File CONFIG = new File("app.properties");
+    private final String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+    private final File CONFIG = new File(rootPath + "application.properties");
     private static ServerConfig instance;
     private final Properties properties;
 
     private ServerConfig() {
+
         properties = new Properties();
 
         try {

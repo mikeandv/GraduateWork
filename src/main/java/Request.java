@@ -34,6 +34,12 @@ public class Request {
 
 
         //Читаем первую строку запроса
+        // TODO: 15.01.2019 переделать чтение чтобы не читались пустые данные (null)
+
+        while(!reader.ready()) {
+            //System.out.println("Ожидание потока данных от клиента");
+            //ждем пока данные в потоке будут готовы для чиения
+        }
         this.firstLine = reader.readLine();
 
         if(!this.firstLine.isEmpty() && !this.firstLine.startsWith(" ")) {
@@ -41,6 +47,12 @@ public class Request {
             tmp = this.firstLine.split(" ");
             if(!(tmp.length < 3)) {
                 this.method = tmp[0];  //Вычисляем метод запроса
+
+                // TODO: 16.01.2019 Для дебага,убрать!
+                if(tmp[1].equals("/vendor/bootstrap/js/popper.js")) {
+                    int i = 0;
+                }
+
                 getUrlAndParams(tmp[1]); // парсим Uri на URl и параметры строки если они есть
             }
         }
@@ -65,13 +77,14 @@ public class Request {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("Request:\n");
         sb.append(firstLine).append("\n");
 
         for(Map.Entry entry : header.entrySet()) {
             sb.append(entry.getKey() + ": " + entry.getValue()).append("\n");
         }
         sb.append("\r\n");
-        if(!body.equals("null"))
+        if(!(body == null))
             sb.append(body);
         return sb.toString();
     }
@@ -84,11 +97,21 @@ public class Request {
 
             int len = s.length();
             String paramsString = s.substring(paramIndex + 1, len);
-            String[] a = paramsString.split("&");
 
-            for(String str : a) {
-                String[] b = str.split("=");
-                this.params.put(b[0], b[1]);
+            if(paramsString.contains("&")) {
+
+                String[] a = paramsString.split("&");
+                for (String str : a) {
+
+                    if(str.contains("=")) {
+
+                        String[] b = str.split("=");
+
+                        if(b.length == 2) {
+                            this.params.put(b[0], b[1]);
+                        }
+                    }// TODO: 19.01.2019 добавить в ответ что параметры не корректны 
+                }
             }
         } else {
             this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.trim();
