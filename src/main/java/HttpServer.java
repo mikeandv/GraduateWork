@@ -1,3 +1,5 @@
+import serverconfig.ServerConfig;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,9 +28,19 @@ public class HttpServer{
     public static void main(String[] args) {
         HttpServer server = new HttpServer();
         server.start();
-        //System.out.println(ServerConfig.getConfig().getParam("web.port"));
+        //System.out.println(serverconfig.ServerConfig.getConfig().getParam("web.port"));
 
-//        File tempForCountBytes = new File(Response.class.getClassLoader().getResource("www/vendor/bootstrap/css/bootstrap.min.css").getFile());
+//        File tempForCountBytes = new File(entity.Response.class.getClassLoader().getResource("www/vendor/bootstrap/css/bootstrap.min.css").getFile());
+//        CookieSession session = DBSessionFactory.getSessionFactory().openSession();
+//        System.out.println(session.isConnected());
+//        entity.User u1 = new User();
+//        u1.setEmail("mail");
+//        u1.setPassword("222");
+//
+//        Transaction tr = session.beginTransaction();
+//        session.save(u1);
+//        tr.commit();
+//        session.close();
 
     }
 }

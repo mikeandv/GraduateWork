@@ -1,3 +1,8 @@
+import factory.Handler;
+import entity.Request;
+import entity.Response;
+import factory.HttpFactory;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -24,9 +29,11 @@ public class ClientSession implements Runnable {
             this.request.readRequestData(in);
             System.out.println(this.request.toString());
 
-            HttpHandler handler = new HttpHandler();
+            HttpFactory factory = new HttpFactory();
 
-            this.response = handler.requestProceed(this.request);
+
+            this.response = factory.getHandler(this.request).getResponseResult();
+                    //handler.requestProceed(this.request);
 
             System.out.println(this.response.toString());
             sendResponse(response, out);
@@ -37,7 +44,8 @@ public class ClientSession implements Runnable {
         }
     }
 
-    private void sendResponse(Response response, OutputStream out) throws IOException{
+    private void sendResponse(Response response, OutputStream out) throws IOException {
+
         writeData(response.getHeader(), out);
 
         InputStream tmp = response.getData();

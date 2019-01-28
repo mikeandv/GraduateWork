@@ -1,3 +1,7 @@
+package entity;
+
+import serverconfig.ServerConfig;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,14 +36,13 @@ public class Request {
         String line;
         String[] tmp;
 
-
         //Читаем первую строку запроса
-        // TODO: 15.01.2019 переделать чтение чтобы не читались пустые данные (null)
 
         while(!reader.ready()) {
             //System.out.println("Ожидание потока данных от клиента");
             //ждем пока данные в потоке будут готовы для чиения
         }
+
         this.firstLine = reader.readLine();
 
         if(!this.firstLine.isEmpty() && !this.firstLine.startsWith(" ")) {
@@ -48,15 +51,9 @@ public class Request {
             if(!(tmp.length < 3)) {
                 this.method = tmp[0];  //Вычисляем метод запроса
 
-                // TODO: 16.01.2019 Для дебага,убрать!
-                if(tmp[1].equals("/vendor/bootstrap/js/popper.js")) {
-                    int i = 0;
-                }
-
                 getUrlAndParams(tmp[1]); // парсим Uri на URl и параметры строки если они есть
             }
         }
-
 
         // читаем хеадеры запроса пока не встретим разделитель в виде пустой строки и складываем их в мап по порядку
         while(!(line = reader.readLine()).isEmpty()) {
@@ -77,7 +74,7 @@ public class Request {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Request:\n");
+        sb.append("entity.Request:\n");
         sb.append(firstLine).append("\n");
 
         for(Map.Entry entry : header.entrySet()) {
@@ -115,6 +112,7 @@ public class Request {
             }
         } else {
             this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.trim();
+
         }
     }
 

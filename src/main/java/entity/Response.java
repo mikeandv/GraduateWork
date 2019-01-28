@@ -1,3 +1,5 @@
+package entity;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -9,7 +11,7 @@ public class Response {
     private final String[][] HTTP_REPLIES = {
             {"200", "OK"},
             {"404", "Not Found"},
-            {"400", "Bad Request"},
+            {"400", "Bad entity.Request"},
             {"401", "Unauthorized"},
             {"500", "Internal Server Error"}
     };
@@ -68,6 +70,7 @@ public class Response {
             return null;
         }
             return Response.class.getClassLoader().getResourceAsStream(data);
+        //
 //        }
     }
 
@@ -78,6 +81,7 @@ public class Response {
 
     public void buildResponse(int code, String data, String contentType) {
         this.data = data;
+        // TODO: 21/01/2019 Для реализации инекции в хтмл можно сделать чтение файла по строками и поиск в нужной строке якорных тегов для подмены значений
         // TODO: 16.01.2019 вынести в отдельный метод
         this.contentLength = getDataBytesCount(data);
         this.contentType = contentType;
@@ -97,7 +101,7 @@ public class Response {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Response:\n");
+        sb.append("entity.Response:\n");
         sb.append(this.header);
         if(this.data == null)
             sb.append("No data in body");
