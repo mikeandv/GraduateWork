@@ -1,8 +1,12 @@
 package entity;
 
+import serverconfig.ServerConfig;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Objects;
@@ -15,14 +19,25 @@ public class Response {
             {"401", "Unauthorized"},
             {"500", "Internal Server Error"}
     };
-    //private int code;
     private String header;
-    private String data;
+    private byte[] data;
     private long contentLength = 0;
     private String contentType;
 
     public Response() {
     }
+
+    public static Response getInstanceBadRequest() {
+        Response r = new Response();
+        r.buildResponse(400, ServerConfig.getConfig().getParam("web.bad_request_page"), "text/html");
+        return r;
+    }
+    public static Response getInstanceInternalServerError() {
+        Response r = new Response();
+        r.buildResponse(500, ServerConfig.getConfig().getParam("web.internal_server_error_page"), "text/html");
+        return r;
+    }
+
 
     private String getHeader(int code) {
         DateFormat d = DateFormat.getDateInstance();
@@ -61,16 +76,21 @@ public class Response {
     }
 
     public InputStream getData() {
+        if(data == null) {
+            return null;
+        } else {
+            return new ByteArrayInputStream(this.data);
+        }
 //        if (this.data.equals("")) {
 //
 //            String stringData = String.valueOf(this.data);
 //            return new ByteArrayInputStream(stringData.getBytes())
 //        } else {
-        if(data == null) {
-            return null;
-        }
-            return Response.class.getClassLoader().getResourceAsStream(data);
-        //
+//        if(data == null) {
+//            return null;
+//        }
+//            return Response.class.getClassLoader().getResourceAsStream(data);
+//
 //        }
     }
 
@@ -80,22 +100,34 @@ public class Response {
 
 
     public void buildResponse(int code, String data, String contentType) {
-        this.data = data;
+        this.data = getDataBytes(data);
         // TODO: 21/01/2019 Для реализации инекции в хтмл можно сделать чтение файла по строками и поиск в нужной строке якорных тегов для подмены значений
         // TODO: 16.01.2019 вынести в отдельный метод
-        this.contentLength = getDataBytesCount(data);
+        this.contentLength = this.data.length;
         this.contentType = contentType;
         this.header = getHeader(code);
 
     }
-    private long  getDataBytesCount(String tempData) {
+    private byte[] getDataBytes(String tempData) {
 
-        File tempForCountBytes = new File(Objects.requireNonNull(Response.class.getClassLoader().getResource(tempData)).getFile());
-        if(tempForCountBytes.exists() && !tempForCountBytes.isDirectory()){
-            return tempForCountBytes.length();
-        } else {
-            return tempData.getBytes().length;
+        byte[] dataBytes = null;
+
+        try
+        {
+            File tempFile = new File(Objects.requireNonNull(Response.class.getClassLoader().getResource(tempData)).getFile());
+            if(tempFile.exists() && !tempFile.isDirectory()){
+                dataBytes = Files.readAllBytes(tempFile.toPath());
+            }
+
+        } catch (NullPointerException e) {
+            dataBytes =  tempData.getBytes();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: 31/01/2019 переделать исключение, когда файл не удается прочитать
         }
+
+        return dataBytes;
     }
 
     @Override
@@ -106,7 +138,7 @@ public class Response {
         if(this.data == null)
             sb.append("No data in body");
         else
-            sb.append(this.data);
+            sb.append(new String(this.data));
         return sb.toString();
     }
 }

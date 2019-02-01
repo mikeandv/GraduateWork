@@ -16,6 +16,7 @@ public class Request {
     private String url;
     private String method;
     private String firstLine;
+//    private boolean isBadRequest;
 
 
     public Request() {
@@ -26,9 +27,10 @@ public class Request {
         this.url = null;
         this.method = null;
 
+
     }
 
-    public void readRequestData(InputStream inputStream) throws IOException {
+    public void readRequestData(InputStream inputStream) throws Exception {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder builder = new StringBuilder();
@@ -86,18 +88,19 @@ public class Request {
         return sb.toString();
     }
 
-    private void getUrlAndParams(String s) {
+    private void getUrlAndParams(String s) throws Exception{
 
         int paramIndex = s.indexOf("?");
         if (paramIndex != -1) {
-            this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.substring(0, paramIndex);
 
+            this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.substring(0, paramIndex);
             int len = s.length();
             String paramsString = s.substring(paramIndex + 1, len);
 
             if(paramsString.contains("&")) {
 
                 String[] a = paramsString.split("&");
+
                 for (String str : a) {
 
                     if(str.contains("=")) {
@@ -109,6 +112,16 @@ public class Request {
                         }
                     }// TODO: 19.01.2019 добавить в ответ что параметры не корректны 
                 }
+            } else if(paramsString.contains("=")) {
+
+                String[] b = paramsString.split("=");
+
+                if(b.length == 2) {
+                    this.params.put(b[0], b[1]);
+                }
+            } else {
+
+                // TODO: 28/01/2019  заглушка
             }
         } else {
             this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.trim();
