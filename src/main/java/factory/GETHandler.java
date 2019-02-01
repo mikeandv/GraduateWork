@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class GETHandler implements Handler {
-    Response response;
-    Request request;
+    private Response response;
+    private Request request;
 
     public GETHandler(Request request){
         this.response = new Response();
