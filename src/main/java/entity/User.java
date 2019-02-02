@@ -15,6 +15,10 @@ public class User {
     private Long id;
 
     @NotNull
+    @Column(name="username", length = 15)
+    private String name;
+
+    @NotNull
     @Column(name="email", length=320)
     private String email;
 
@@ -45,6 +49,14 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -91,6 +103,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", name=" + name +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", createDTM=" + createDTM +

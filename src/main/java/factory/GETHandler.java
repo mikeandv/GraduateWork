@@ -113,7 +113,6 @@ public class GETHandler implements Handler {
 
     private String findData(String url, Map<String, String> params) {
 
-
         return new String();
     }
 

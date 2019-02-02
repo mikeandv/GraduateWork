@@ -1,3 +1,5 @@
+import dbhandler.DBSessionFactory;
+import org.hibernate.Session;
 import serverconfig.ServerConfig;
 
 import java.io.IOException;
@@ -7,6 +9,10 @@ import java.net.Socket;
 public class HttpServer{
 
     public void start() {
+        Session sessionDB = DBSessionFactory.getSessionFactory().openSession();
+        if(sessionDB.isConnected())
+            System.out.println("Database is connected");
+
         try(ServerSocket serverSocket = new ServerSocket(Integer.parseInt(ServerConfig.getConfig().getParam("web.port"))))
         {
             System.out.println("Server started on port: "
@@ -28,6 +34,7 @@ public class HttpServer{
     public static void main(String[] args) {
         HttpServer server = new HttpServer();
         server.start();
+
         //System.out.println(serverconfig.ServerConfig.getConfig().getParam("web.port"));
 
 //        File tempForCountBytes = new File(entity.Response.class.getClassLoader().getResource("www/vendor/bootstrap/css/bootstrap.min.css").getFile());

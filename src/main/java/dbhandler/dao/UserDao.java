@@ -14,6 +14,7 @@ public interface UserDao {
     void update(User user);
     void delete(User user);
     Set<CookieSession> findCookieSessionByUserId(Long userId);
+    public Set<CookieSession> findCookieSessionByUserIdAndCode(Long userId, String code);
     List<User> findAll();
 
 }

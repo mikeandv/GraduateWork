@@ -35,6 +35,9 @@ public class UserService {
     public Set<CookieSession> findCookieSessionByUserId(Long id) {
         return userDao.findCookieSessionByUserId(id);
     }
+    public Set<CookieSession> findCookieSessionByUserIdAndCode(Long userId, String code) {
+        return userDao.findCookieSessionByUserIdAndCode(userId, code);
+    }
 
     public List<User> findAllUser() {
         return userDao.findAll();

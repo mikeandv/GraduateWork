@@ -7,8 +7,10 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +32,15 @@ public class UserDaoHib implements UserDao {
 
         Query<User> query = session.createQuery(cr);
 
-        return query.getSingleResult();
+        User user;
+
+        try{
+            user = query.getSingleResult();
+        } catch (NoResultException e) {
+            user = null;
+        }
+        session.close();
+        return user;
     }
 
     @Override
@@ -72,7 +82,35 @@ public class UserDaoHib implements UserDao {
 
         Query<CookieSession> query = session.createQuery(cr);
 
-        return new HashSet<>(query.getResultList());
+        Set<CookieSession> tmp = new HashSet<>(query.getResultList());
+        session.close();
+
+        return tmp;
+    }
+    public Set<CookieSession> findCookieSessionByUserIdAndCode(Long userId, String code) {
+        Session session = DBSessionFactory.getSessionFactory().openSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<CookieSession> cr = cb.createQuery(CookieSession.class);
+        Root<CookieSession> root = cr.from(CookieSession.class);
+
+        Predicate cookieUserId = cb.equal(root.get("user"), userId);
+        Predicate statusCode = cb.equal(root.get("status"), code);
+        cr.select(root).where(cb.and(cookieUserId, statusCode));
+
+        Query<CookieSession> query = session.createQuery(cr);
+
+        List<CookieSession> cookieSession;
+
+        try{
+            cookieSession = query.getResultList();
+        } catch (NoResultException e) {
+            cookieSession = null;
+        }
+
+        Set<CookieSession> tmp = new HashSet<>(cookieSession);
+        session.close();
+
+        return tmp;
     }
 
     @Override

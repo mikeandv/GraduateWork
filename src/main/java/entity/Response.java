@@ -8,7 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.text.DateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Response {
@@ -23,6 +28,7 @@ public class Response {
     private byte[] data;
     private long contentLength = 0;
     private String contentType;
+    private Map<String, String> cookie = new HashMap<>();
 
     public Response() {
     }
@@ -46,13 +52,26 @@ public class Response {
         if(code == 200) {
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
 //            buffer.append("WWW-Authenticate: Basic realm=\"User Visible Realm\"");
-            buffer.append("Date: " + d.format(new Date()) + "\n");
+            buffer.append("Date: " + DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("GMT"))) + "\n");
             buffer.append("Content-Type: " + contentType + "\n");
 
             if(contentLength != 0) {
                 buffer.append("Accept-Ranges: bytes\n");
                 buffer.append("Content-Length: " + contentLength + "\n");
             }
+
+            if(!cookie.isEmpty()) {
+                buffer.append("Set-Cookie: ");
+                for (Map.Entry<String, String> entry : cookie.entrySet()) {
+
+                    buffer.append(entry.getKey() + "=" + entry.getValue() + "; ");
+                }
+                buffer.append("Domain="+ ServerConfig.getConfig().getParam("web.domain") + "; ")
+                        .append("Path=/; ").append("HttpOnly").append("\n");
+            }
+
+            //Set-Cookie: id=a3fWa;     Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly
+            //Set-Cookie: sessionid=13; Expires=Mon, 4 Feb 2019 14:54:53 GMT; HttpOnly
             buffer.append("\r\n");
         } else if(code == 401){
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
@@ -107,6 +126,11 @@ public class Response {
         this.contentType = contentType;
         this.header = getHeader(code);
 
+    }
+
+    public void buildResponse(int code, String data, String contentType, Map<String, String> cookie) {
+        this.cookie = cookie;
+        buildResponse(code, data, contentType);
     }
     private byte[] getDataBytes(String tempData) {
 

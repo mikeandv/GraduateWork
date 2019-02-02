@@ -16,7 +16,6 @@ public class Request {
     private String url;
     private String method;
     private String firstLine;
-//    private boolean isBadRequest;
 
 
     public Request() {
@@ -48,7 +47,7 @@ public class Request {
         this.firstLine = reader.readLine();
 
         if(!this.firstLine.isEmpty() && !this.firstLine.startsWith(" ")) {
-            // проверяем что строка имеет корректный вид и разбиваем ее на 3 части 1. метод 2. Url 3.
+            // проверяем что строка имеет корректный вид и разбиваем ее на 3 части 1. метод hibernate.cfg.xml. Url 3.
             tmp = this.firstLine.split(" ");
             if(!(tmp.length < 3)) {
                 this.method = tmp[0];  //Вычисляем метод запроса
