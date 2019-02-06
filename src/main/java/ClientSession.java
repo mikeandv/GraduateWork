@@ -68,7 +68,7 @@ public class ClientSession implements Runnable {
 
                 sendResponse(this.response, outv2);
 
-                //если все ок, то записываем в сервисый лог результат
+                //если все ок, то записываем в сервисый лог результаты
                 ServiceLogService logService = new ServiceLogService();
                 logService.save(new ServiceLog(this.request.toString(), this.response.toString(),null, dateNow));
 
