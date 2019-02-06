@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.text.DateFormat;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ public class Response {
     private final String[][] HTTP_REPLIES = {
             {"200", "OK"},
             {"404", "Not Found"},
-            {"400", "Bad entity.Request"},
+            {"400", "Bad Request"},
             {"401", "Unauthorized"},
             {"500", "Internal Server Error"}
     };
@@ -35,12 +34,22 @@ public class Response {
 
     public static Response getInstanceBadRequest() {
         Response r = new Response();
-        r.buildResponse(400, ServerConfig.getConfig().getParam("web.bad_request_page"), "text/html");
+
+        try {
+            r.buildResponse(400, ServerConfig.getConfig().getParam("web.bad_request_page"), "text/html");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return r;
     }
     public static Response getInstanceInternalServerError() {
         Response r = new Response();
-        r.buildResponse(500, ServerConfig.getConfig().getParam("web.internal_server_error_page"), "text/html");
+        try {
+            r.buildResponse(500, ServerConfig.getConfig().getParam("web.internal_server_error_page"), "text/html");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return r;
     }
 
@@ -118,7 +127,7 @@ public class Response {
     }
 
 
-    public void buildResponse(int code, String data, String contentType) {
+    public void buildResponse(int code, String data, String contentType) throws IOException {
         this.data = getDataBytes(data);
         // TODO: 21/01/2019 Для реализации инекции в хтмл можно сделать чтение файла по строками и поиск в нужной строке якорных тегов для подмены значений
         // TODO: 16.01.2019 вынести в отдельный метод
@@ -128,11 +137,12 @@ public class Response {
 
     }
 
-    public void buildResponse(int code, String data, String contentType, Map<String, String> cookie) {
+    public void buildResponse(int code, String data, String contentType, Map<String, String> cookie) throws IOException {
         this.cookie = cookie;
         buildResponse(code, data, contentType);
     }
-    private byte[] getDataBytes(String tempData) {
+
+    private byte[] getDataBytes(String tempData) throws IOException {
 
         byte[] dataBytes = null;
 
@@ -146,9 +156,6 @@ public class Response {
         } catch (NullPointerException e) {
             dataBytes =  tempData.getBytes();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: 31/01/2019 переделать исключение, когда файл не удается прочитать
         }
 
         return dataBytes;
@@ -157,7 +164,7 @@ public class Response {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("entity.Response:\n");
+//        sb.append("entity.Response:\n");
         sb.append(this.header);
         if(this.data == null)
             sb.append("No data in body");

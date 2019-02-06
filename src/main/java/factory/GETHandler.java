@@ -4,6 +4,7 @@ import entity.Request;
 import entity.Response;
 import serverconfig.ServerConfig;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public class GETHandler implements Handler {
     }
 
     @Override
-    public Response getResponseResult() {
+    public Response getResponseResult() throws IOException {
 
 //        if(isAuthorized(request)) {
 

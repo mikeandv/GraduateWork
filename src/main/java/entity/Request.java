@@ -1,5 +1,6 @@
 package entity;
 
+import customexception.RestException;
 import serverconfig.ServerConfig;
 
 import java.io.BufferedReader;
@@ -29,7 +30,7 @@ public class Request {
 
     }
 
-    public void readRequestData(InputStream inputStream) throws Exception {
+    public void readRequestData(InputStream inputStream) throws Exception, RestException {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder builder = new StringBuilder();
@@ -37,24 +38,15 @@ public class Request {
         String line;
         String[] tmp;
 
-        //Читаем первую строку запроса
+
 
         while(!reader.ready()) {
-            //System.out.println("Ожидание потока данных от клиента");
+
             //ждем пока данные в потоке будут готовы для чиения
         }
 
         this.firstLine = reader.readLine();
-
-        if(!this.firstLine.isEmpty() && !this.firstLine.startsWith(" ")) {
-            // проверяем что строка имеет корректный вид и разбиваем ее на 3 части 1. метод hibernate.cfg.xml. Url 3.
-            tmp = this.firstLine.split(" ");
-            if(!(tmp.length < 3)) {
-                this.method = tmp[0];  //Вычисляем метод запроса
-
-                getUrlAndParams(tmp[1]); // парсим Uri на URl и параметры строки если они есть
-            }
-        }
+        //Читаем первую строку запроса
 
         // читаем хеадеры запроса пока не встретим разделитель в виде пустой строки и складываем их в мап по порядку
         while(!(line = reader.readLine()).isEmpty()) {
@@ -69,13 +61,25 @@ public class Request {
 
         //помещаем в результирующую строку
         this.body = builder.toString();
+
+
+        //разбираем первую строку на параметры запроса
+        if(!this.firstLine.isEmpty() && !this.firstLine.startsWith(" ")) {
+            // проверяем что строка имеет корректный вид и разбиваем ее на 3 части 1. метод hibernate.cfg.xml. Url 3.
+            tmp = this.firstLine.split(" ");
+            if(!(tmp.length < 3)) {
+                this.method = tmp[0];  //Вычисляем метод запроса
+
+                getUrlAndParams(tmp[1]); // парсим Uri на URl и параметры строки если они есть
+            }
+        }
     }
 
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("entity.Request:\n");
+//        sb.append("entity.Request:\n");
         sb.append(firstLine).append("\n");
 
         for(Map.Entry entry : header.entrySet()) {
@@ -87,10 +91,9 @@ public class Request {
         return sb.toString();
     }
 
-    private void getUrlAndParams(String s) throws Exception{
+    private void getUrlAndParams(String s) throws RestException{
 
-        int paramIndex = s.indexOf("?");
-        if (paramIndex != -1) {
+        int paramIndex = s.indexOf("?");if (paramIndex != -1) {
 
             this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.substring(0, paramIndex);
             int len = s.length();
@@ -109,7 +112,9 @@ public class Request {
                         if(b.length == 2) {
                             this.params.put(b[0], b[1]);
                         }
-                    }// TODO: 19.01.2019 добавить в ответ что параметры не корректны 
+                    } else {
+                        throw new RestException("400 Некорректная строка запроса отсутствует оператор \"=\"\n");
+                    }// TODO: 19.01.2019 добавить в ответ что параметры не корректны
                 }
             } else if(paramsString.contains("=")) {
 
@@ -119,8 +124,7 @@ public class Request {
                     this.params.put(b[0], b[1]);
                 }
             } else {
-
-                // TODO: 28/01/2019  заглушка
+                    throw new RestException("400 Некорректная строка запроса отсутствуют параметры запроса\n");
             }
         } else {
             this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.trim();

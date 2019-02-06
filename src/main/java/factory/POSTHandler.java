@@ -9,6 +9,7 @@ import entity.Response;
 import entity.User;
 import serverconfig.ServerConfig;
 
+import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -29,7 +30,7 @@ public class POSTHandler implements Handler {
     }
 
     @Override
-    public Response getResponseResult() {
+    public Response getResponseResult() throws IOException {
 
         String filesDir = ServerConfig.getConfig().getParam("web.default_files_dir");
 
@@ -53,10 +54,10 @@ public class POSTHandler implements Handler {
                 response.buildResponse(200, gson.toJson("entersite"), "application/json", cookieMap);
                 return this.response;
 
-            }
+            } // TODO: 04/02/2019 если есть куки
 
-            response.buildResponse(200, gson.toJson(userExists), "application/json");
-            return this.response;
+//            response.buildResponse(200, gson.toJson(userExists), "application/json");
+//            return this.response;
 
         } else if(request.getUrl().equals(POST_ACTIONS[1])) // /app/register
         {
@@ -72,7 +73,8 @@ public class POSTHandler implements Handler {
             }
         }
 
-        return null;
+        throw new IOException("check");
+        //return null;
     }
     private User loginCheck(String jsonData) {
 
@@ -99,7 +101,7 @@ public class POSTHandler implements Handler {
 
         User user = userService.findUser(userTmp.getEmail());
 
-        user.setCookieSessions(createCookieSession(user));
+//        user.setCookieSessions(createCookieSession(user));
         return user;
     }
 
