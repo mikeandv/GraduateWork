@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!--<property name="hibernate.connection.driver_class">org.postgresql.Driver</property>-->
+        <property name="hibernate.connection.provider_class">org.hibernate.hikaricp.internal.HikariCPConnectionProvider</property>
+        <property name="hibernate.hikari.dataSourceClassName">org.postgresql.ds.PGSimpleDataSource</property>
+        <property name="hibernate.hikari.dataSource.user">javaUser</property>
+        <property name="hibernate.hikari.dataSource.password">password</property>
+        <property name="hibernate.hikari.dataSource.databaseName">JTestDB</property>
+        <property name="hibernate.hikari.dataSource.portNumber">5432</property>
+        <property name="hibernate.hikari.dataSource.serverName">localhost</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL95Dialect</property>
+
+
+        <!-- Maximum waiting time for a connection from the pool -->
+        <property name="hibernate.hikari.connectionTimeout">10000</property>
+
+        <!-- Minimum number of ideal connections in the pool -->
+        <property name="hibernate.hikari.minimumIdle">5</property>
+
+        <!-- Maximum number of actual connection in the pool -->
+        <property name="hibernate.hikari.maximumPoolSize">10</property>
+
+        <!-- Maximum time that a connection is allowed to sit ideal in the pool -->
+        <property name="hibernate.hikari.idleTimeout">30000</property>
+
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <mapping class="entity.User"/>
+        <mapping class="entity.CookieSession"/>
+        <mapping class="entity.ServiceLog"/>
+    </session-factory>
+</hibernate-configuration>
