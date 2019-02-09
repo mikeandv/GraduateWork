@@ -4,14 +4,13 @@ import customexception.RestException;
 import serverconfig.ServerConfig;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Request {
-    private Map<String, String> header;
+    private Map<String, String> header; // переделать на arraylist
     private Map<String, String> params;
     private String body;
     private String url;
@@ -37,8 +36,6 @@ public class Request {
 
         String line;
         String[] tmp;
-
-
 
         while(!reader.ready()) {
 
@@ -93,9 +90,12 @@ public class Request {
 
     private void getUrlAndParams(String s) throws RestException{
 
-        int paramIndex = s.indexOf("?");if (paramIndex != -1) {
+        int paramIndex = s.indexOf("?");
 
-            this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.substring(0, paramIndex);
+
+        if (paramIndex != -1) {
+
+            this.url = s.substring(0, paramIndex);
             int len = s.length();
             String paramsString = s.substring(paramIndex + 1, len);
 
@@ -113,8 +113,8 @@ public class Request {
                             this.params.put(b[0], b[1]);
                         }
                     } else {
-                        throw new RestException("400 Некорректная строка запроса отсутствует оператор \"=\"\n");
-                    }// TODO: 19.01.2019 добавить в ответ что параметры не корректны
+                        throw new RestException("400 Некорректная строка запроса. Отсутствует оператор \"=\"\n");
+                    }
                 }
             } else if(paramsString.contains("=")) {
 
@@ -124,11 +124,10 @@ public class Request {
                     this.params.put(b[0], b[1]);
                 }
             } else {
-                    throw new RestException("400 Некорректная строка запроса отсутствуют параметры запроса\n");
+                    throw new RestException("400 Некорректная строка запроса. Отсутствуют параметры запроса\n");
             }
         } else {
-            this.url = ServerConfig.getConfig().getParam("web.default_files_dir") + s.trim();
-
+            this.url = s.trim();
         }
     }
 
@@ -150,5 +149,9 @@ public class Request {
 
     public Map<String, String> getParams() {
         return params;
+    }
+
+    public String getFirstLine() {
+        return firstLine;
     }
 }

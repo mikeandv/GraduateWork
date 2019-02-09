@@ -15,7 +15,7 @@ public class HttpServer{
         if(sessionDB.isConnected())
             System.out.println("Database is connected");
 
-        ExecutorService pool = Executors.newFixedThreadPool(2); // TODO: 06/02/2019 вынести в переменную
+        ExecutorService pool = Executors.newFixedThreadPool(Integer.parseInt(ServerConfig.getConfig().getParam("web.threadpoolsize")));
         try(ServerSocket serverSocket = new ServerSocket(Integer.parseInt(ServerConfig.getConfig().getParam("web.port"))))
         {
             System.out.println("Server started on port: "

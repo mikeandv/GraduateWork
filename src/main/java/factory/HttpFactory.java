@@ -1,12 +1,15 @@
 package factory;
 
+import customexception.RestException;
 import entity.Request;
 
 public class HttpFactory {
 
-    public Handler getHandler(Request request) {
+    public Handler getHandler(Request request) throws RestException{
 
-// TODO: 15.01.2019 Добавить обработку ситуации с вызовом не поддерживаемого метода в default
+        if(request.getMethod().isEmpty())
+            throw new RestException("400");
+
 
         switch (request.getMethod()) {
             case "GET":
@@ -18,7 +21,7 @@ public class HttpFactory {
 //            case "DELETE":
 //                return
             default:
-                return () -> null;
+                throw new RestException("501");
         }
     }
 }

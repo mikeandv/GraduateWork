@@ -16,13 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class Response {
-    private final String[][] HTTP_REPLIES = {
-            {"200", "OK"},
-            {"404", "Not Found"},
-            {"400", "Bad Request"},
-            {"401", "Unauthorized"},
-            {"500", "Internal Server Error"}
-    };
+    private final Map<Integer, String> HTTP_REPLIES = createMap();
     private String header;
     private byte[] data;
     private long contentLength = 0;
@@ -32,29 +26,41 @@ public class Response {
     public Response() {
     }
 
-    public static Response getInstanceBadRequest() {
+
+    public static Response getInstanceError(int errorCode, String message) {
+
         Response r = new Response();
+        String responseStatus = r.getAnswer(errorCode);
+//        for(int i = 0; i < r.HTTP_REPLIES.length; i++) {
+//            if(r.HTTP_REPLIES[i][0].equals(errorCode)) {
+//                responseStatus = r.HTTP_REPLIES[i][1];
+//                break;
+//            }
+//        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<!DOCTYPE html>\n" +
+                "<html lang=\"ru\">\n" +
+                "<head>\n" +
+                "<meta charset=\"UTF-8\">\n")
+                .append("<title>" + responseStatus + "</title>\n")
+                .append("</head> "+
+                        "<body>")
+                .append("<h1>" + responseStatus + "</h1>")
+                .append("<div>" + message + "</div>")
+                .append("</body>\n" +
+                        "</html>");
 
         try {
-            r.buildResponse(400, ServerConfig.getConfig().getParam("web.bad_request_page"), "text/html");
+            r.buildResponse(errorCode, sb.toString(), "text/html");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return r;
     }
-    public static Response getInstanceInternalServerError() {
-        Response r = new Response();
-        try {
-            r.buildResponse(500, ServerConfig.getConfig().getParam("web.internal_server_error_page"), "text/html");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return r;
-    }
 
-
-    private String getHeader(int code) {
+    private String getHeaderStream(int code) {
         DateFormat d = DateFormat.getDateInstance();
         StringBuilder buffer = new StringBuilder();
 
@@ -78,9 +84,6 @@ public class Response {
                 buffer.append("Domain="+ ServerConfig.getConfig().getParam("web.domain") + "; ")
                         .append("Path=/; ").append("HttpOnly").append("\n");
             }
-
-            //Set-Cookie: id=a3fWa;     Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly
-            //Set-Cookie: sessionid=13; Expires=Mon, 4 Feb 2019 14:54:53 GMT; HttpOnly
             buffer.append("\r\n");
         } else if(code == 401){
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
@@ -95,34 +98,24 @@ public class Response {
 
     private String getAnswer(int code) {
 
-        for(int i = 0; i < HTTP_REPLIES.length; i++) {
-            if(HTTP_REPLIES[i][0].equals(String.valueOf(code)))
-                return HTTP_REPLIES[i][1];
+        for(Map.Entry<Integer, String> entry: HTTP_REPLIES.entrySet()){
+            if(entry.getKey() == code) {
+                return entry.getValue();
+            }
         }
         return null; // TODO: 15.01.2019 Нужно посмотреть насколько это правильно будет работать
 
     }
 
-    public InputStream getData() {
+    public InputStream getDataStream() {
         if(data == null) {
             return null;
         } else {
             return new ByteArrayInputStream(this.data);
         }
-//        if (this.data.equals("")) {
-//
-//            String stringData = String.valueOf(this.data);
-//            return new ByteArrayInputStream(stringData.getBytes())
-//        } else {
-//        if(data == null) {
-//            return null;
-//        }
-//            return Response.class.getClassLoader().getResourceAsStream(data);
-//
-//        }
     }
 
-    public InputStream getHeader() {
+    public InputStream getHeaderStream() {
         return new ByteArrayInputStream(header.getBytes());
     }
 
@@ -133,7 +126,7 @@ public class Response {
         // TODO: 16.01.2019 вынести в отдельный метод
         this.contentLength = this.data.length;
         this.contentType = contentType;
-        this.header = getHeader(code);
+        this.header = getHeaderStream(code);
 
     }
 
@@ -171,5 +164,19 @@ public class Response {
         else
             sb.append(new String(this.data));
         return sb.toString();
+    }
+
+    private static Map<Integer, String> createMap() {
+        Map<Integer, String> myMap = new HashMap<>();
+        myMap.put(200, "OK");
+        myMap.put(400, "Bad Request");
+        myMap.put(404, "Not Found");
+        myMap.put(401, "Unauthorized");
+        myMap.put(405, "Method Not Allowed");
+        myMap.put(500, "Internal Server Error");
+        myMap.put(501, "Not Implemented");
+
+        return myMap;
+
     }
 }

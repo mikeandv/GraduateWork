@@ -25,7 +25,7 @@ public class POSTHandler implements Handler {
     };
 
     public POSTHandler(Request request) {
-        this.response = new Response();
+        this.response = new Response();// TODO: 08/02/2019 переделать, убрать из конструктора
         this.request = request;
     }
 

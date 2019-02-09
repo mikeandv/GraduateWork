@@ -58,6 +58,7 @@ public class ClientSession implements Runnable {
 
                 this.request = new Request();
                 this.request.readRequestData(inv2);
+
                 System.out.println(this.request.toString());
 
                 HttpFactory factory = new HttpFactory();
@@ -77,22 +78,29 @@ public class ClientSession implements Runnable {
                 ServiceLogService logService = new ServiceLogService();
                 logService.save(new ServiceLog(this.request.toString(),null, e.getMessage() + Arrays.toString(e.getStackTrace()), dateNow));
 
-                sendResponse(Response.getInstanceInternalServerError(), outv2);
+//                sendResponse(Response.getInstanceError(400, e.getMessage() + Arrays.toString(e.getStackTrace())), outv2);
 
             } catch (RestException e) {
                 // TODO: 06/02/2019 нужно сделать свой класс исключений
                 ServiceLogService logService = new ServiceLogService();
                 logService.save(new ServiceLog(this.request.toString(), null, e.getMessage() + Arrays.toString(e.getStackTrace()), dateNow));
 
-                if(e.getMessage().startsWith("400")) {
-                    sendResponse(Response.getInstanceBadRequest(), outv2);
-                } else {
+                String errorCode = e.getMessage().substring(0,3).trim();
+                String errorMessage = e.getMessage().substring(3).trim();
 
+                switch (errorCode) {
+                    case "400":
+                        sendResponse(Response.getInstanceError(400, errorMessage), outv2);
+                        break;
+                    case "501":
+                        sendResponse(Response.getInstanceError(501, errorMessage), outv2);
+                    default:
                 }
 
             } catch (Exception e) {
                 // TODO: 06/02/2019 Запись в лог веб сервера
             } finally {
+
                 try {
                     inv2.close();
                     outv2.close();
@@ -106,8 +114,8 @@ public class ClientSession implements Runnable {
     private void sendResponse(Response response, OutputStream out) {
 
         try {
-            writeData(response.getHeader(), out);
-            InputStream tmp = response.getData();
+            writeData(response.getHeaderStream(), out);
+            InputStream tmp = response.getDataStream();
 
             if (!(tmp == null))
                 writeData(tmp, out);
