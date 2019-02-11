@@ -24,31 +24,6 @@ public class ClientSession implements Runnable {
         this.socket = socket;
     }
 
-
-    //@Override
-//    public void run22() {
-//
-//        try(
-//                InputStream in = socket.getInputStream();
-//                OutputStream out = socket.getOutputStream()
-//        ) {
-//
-//            this.request = new Request();
-//            this.request.readRequestData(in);
-//            System.out.println(this.request.toString());
-//
-//            HttpFactory factory = new HttpFactory();
-//
-//            this.response = factory.getHandler(this.request).getResponseResult();
-//
-//            System.out.println(this.response.toString());
-//            sendResponse(this.response, out);
-//
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            }
-//        }
         @Override
         public void run() {
 
@@ -73,20 +48,15 @@ public class ClientSession implements Runnable {
                 ServiceLogService logService = new ServiceLogService();
                 logService.save(new ServiceLog(this.request.toString(), this.response.toString(),null, dateNow));
 
-            } catch (IOException e) {
-                // TODO: 06/02/2019 нужно сделать свой класс исключений
-                ServiceLogService logService = new ServiceLogService();
-                logService.save(new ServiceLog(this.request.toString(),null, e.getMessage() + Arrays.toString(e.getStackTrace()), dateNow));
+            }
+            catch (Exception e) {
 
-//                sendResponse(Response.getInstanceError(400, e.getMessage() + Arrays.toString(e.getStackTrace())), outv2);
-
-            } catch (RestException e) {
-                // TODO: 06/02/2019 нужно сделать свой класс исключений
+                Throwable t = (e.getCause() == null) ? e : e.getCause();
                 ServiceLogService logService = new ServiceLogService();
                 logService.save(new ServiceLog(this.request.toString(), null, e.getMessage() + Arrays.toString(e.getStackTrace()), dateNow));
 
-                String errorCode = e.getMessage().substring(0,3).trim();
-                String errorMessage = e.getMessage().substring(3).trim();
+                String errorCode = t.getMessage().substring(0,3).trim();
+                String errorMessage = t.getMessage().substring(3).trim();
 
                 switch (errorCode) {
                     case "400":
@@ -94,12 +64,21 @@ public class ClientSession implements Runnable {
                         break;
                     case "501":
                         sendResponse(Response.getInstanceError(501, errorMessage), outv2);
+                        break;
+                    case "404":
+                        sendResponse(Response.getInstanceError(404, errorMessage), outv2);
+                        break;
+                    case "500":
+                        sendResponse(Response.getInstanceError(500, errorMessage), outv2);
+                        break;
                     default:
                 }
 
-            } catch (Exception e) {
-                // TODO: 06/02/2019 Запись в лог веб сервера
-            } finally {
+            }
+//            catch (Exception e) {
+//                // TODO: 06/02/2019 Запись в лог веб сервера
+//            }
+            finally {
 
                 try {
                     inv2.close();

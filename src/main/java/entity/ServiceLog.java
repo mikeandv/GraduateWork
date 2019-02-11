@@ -31,12 +31,6 @@ public class ServiceLog {
     public ServiceLog() {
     }
 
-//    public ServiceLog(String request, String error, Date createDTM) {
-//        this.request = request;
-//        this.error = error;
-//        this.createDTM = createDTM;
-//    }
-
     public ServiceLog(String request, String response, String error, Date createDTM) {
         this.request = request;
         this.response = response;

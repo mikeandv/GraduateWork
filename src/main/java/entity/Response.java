@@ -11,9 +11,7 @@ import java.text.DateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class Response {
     private final Map<Integer, String> HTTP_REPLIES = createMap();
@@ -21,7 +19,7 @@ public class Response {
     private byte[] data;
     private long contentLength = 0;
     private String contentType;
-    private Map<String, String> cookie = new HashMap<>();
+    private List<String> cookie;
 
     public Response() {
     }
@@ -31,12 +29,6 @@ public class Response {
 
         Response r = new Response();
         String responseStatus = r.getAnswer(errorCode);
-//        for(int i = 0; i < r.HTTP_REPLIES.length; i++) {
-//            if(r.HTTP_REPLIES[i][0].equals(errorCode)) {
-//                responseStatus = r.HTTP_REPLIES[i][1];
-//                break;
-//            }
-//        }
 
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html>\n" +
@@ -60,7 +52,7 @@ public class Response {
         return r;
     }
 
-    private String getHeaderStream(int code) {
+    private String getHeader(int code) {
         DateFormat d = DateFormat.getDateInstance();
         StringBuilder buffer = new StringBuilder();
 
@@ -75,19 +67,13 @@ public class Response {
                 buffer.append("Content-Length: " + contentLength + "\n");
             }
 
-            if(!cookie.isEmpty()) {
-                buffer.append("Set-Cookie: ");
-                for (Map.Entry<String, String> entry : cookie.entrySet()) {
-
-                    buffer.append(entry.getKey() + "=" + entry.getValue() + "; ");
-                }
-                buffer.append("Domain="+ ServerConfig.getConfig().getParam("web.domain") + "; ")
+            if(cookie != null) {
+                for(String s : cookie) {
+                    buffer.append("Set-Cookie: ").append(s);
+                    buffer.append("Domain="+ ServerConfig.getConfig().getParam("web.domain") + "; ")
                         .append("Path=/; ").append("HttpOnly").append("\n");
+                }
             }
-            buffer.append("\r\n");
-        } else if(code == 401){
-            buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
-//            buffer.append("WWW-Authenticate: Basic realm=\"User Visible Realm\"\n");
             buffer.append("\r\n");
         } else {
             buffer.append("HTTP/1.1 " + code + " " + getAnswer(code) + "\n");
@@ -103,8 +89,7 @@ public class Response {
                 return entry.getValue();
             }
         }
-        return null; // TODO: 15.01.2019 Нужно посмотреть насколько это правильно будет работать
-
+        return null;
     }
 
     public InputStream getDataStream() {
@@ -122,15 +107,13 @@ public class Response {
 
     public void buildResponse(int code, String data, String contentType) throws IOException {
         this.data = getDataBytes(data);
-        // TODO: 21/01/2019 Для реализации инекции в хтмл можно сделать чтение файла по строками и поиск в нужной строке якорных тегов для подмены значений
-        // TODO: 16.01.2019 вынести в отдельный метод
         this.contentLength = this.data.length;
         this.contentType = contentType;
-        this.header = getHeaderStream(code);
+        this.header = getHeader(code);
 
     }
 
-    public void buildResponse(int code, String data, String contentType, Map<String, String> cookie) throws IOException {
+    public void buildResponse(int code, String data, String contentType, List<String> cookie) throws IOException {
         this.cookie = cookie;
         buildResponse(code, data, contentType);
     }
@@ -161,8 +144,11 @@ public class Response {
         sb.append(this.header);
         if(this.data == null)
             sb.append("No data in body");
-        else
+        else if(this.contentType.startsWith("image")) {
+
+        } else {
             sb.append(new String(this.data));
+        }
         return sb.toString();
     }
 

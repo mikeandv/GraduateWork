@@ -14,31 +14,35 @@ public class Router {
     private static final Controller htmlPages = new ControllerHtmlPages();
 
     static {
-        try {
+
             for (Method m : appGet.getClass().getDeclaredMethods()) {
                 RequestMap requestMap = m.getAnnotation(RequestMap.class);
-                routeMap.put(requestMap.method() + requestMap.value(), m);
+                if(requestMap == null) {continue;}
+                for (int i = 0; i < requestMap.value().length; i++) {
+                    routeMap.put(requestMap.method() + requestMap.value()[i], m);
+                }
             }
             for (Method m : appPost.getClass().getDeclaredMethods()) {
                 RequestMap requestMap = m.getAnnotation(RequestMap.class);
-                routeMap.put(requestMap.method() + requestMap.value(), m);
+                if(requestMap == null) {continue;}
+                for (int i = 0; i < requestMap.value().length; i++) {
+                    routeMap.put(requestMap.method() + requestMap.value()[i], m);
+                }
             }
             for (Method m : htmlFiles.getClass().getDeclaredMethods()) {
                 RequestMap requestMap = m.getAnnotation(RequestMap.class);
-                if (requestMap.value().length > 1) {
-                    for (int i = 0; i < requestMap.value().length; i++) {
+                if(requestMap == null) {continue;}
+                for (int i = 0; i < requestMap.value().length; i++) {
                         routeMap.put(requestMap.method() + requestMap.value()[i] + requestMap.filename(), m);
-                    }
                 }
-                routeMap.put(requestMap.method() + requestMap.value() + requestMap.filename(), m);
             }
             for (Method m : htmlPages.getClass().getDeclaredMethods()) {
                 RequestMap requestMap = m.getAnnotation(RequestMap.class);
-                routeMap.put(requestMap.method() + requestMap.value(), m);
+                if (requestMap == null) {continue;}
+                for (int i = 0; i < requestMap.value().length; i++) {
+                    routeMap.put(requestMap.method() + requestMap.value()[i], m);
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static Controller getInstance(Method method) {
@@ -51,6 +55,9 @@ public class Router {
         if (method.getDeclaringClass() == ControllerHtmlPages.class) {
             return htmlPages;
         }
-        return htmlFiles;
+        if (method.getDeclaringClass() == ControllerHtmlFiles.class) {
+            return htmlFiles;
+        }
+        return null;
     }
 }

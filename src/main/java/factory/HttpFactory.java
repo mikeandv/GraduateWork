@@ -16,9 +16,11 @@ public class HttpFactory {
                 return new GETHandler(request);
             case "POST":
                 return new POSTHandler(request);
-//            case "PUT":
+            case "PUT":
+                throw new RestException("501");
 //                return
-//            case "DELETE":
+            case "DELETE":
+                throw new RestException("501");
 //                return
             default:
                 throw new RestException("501");

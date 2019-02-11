@@ -59,7 +59,6 @@ public class UserDaoHib implements UserDao {
         session.update(user);
         tr.commit();
         session.close();
-
     }
 
     @Override

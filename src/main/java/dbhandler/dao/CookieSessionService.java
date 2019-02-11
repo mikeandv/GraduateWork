@@ -16,4 +16,11 @@ public class CookieSessionService {
     public Set<CookieSession> findCookiSessByUserIdAndCode(Long id, String code) {
         return cookieSessionDao.findByUserIdAndCode(id, code);
     }
+
+    public void updateCookieSession(CookieSession cookieSession) {
+        cookieSessionDao.update(cookieSession);
+    }
+    public CookieSession findCookieSessionById(Long id) {
+        return cookieSessionDao.findById(id);
+    }
 }

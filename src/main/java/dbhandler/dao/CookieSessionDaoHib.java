@@ -53,4 +53,18 @@ public class CookieSessionDaoHib implements CookieSessionDao{
 
         return tmp;
     }
+
+    @Override
+    public void update(CookieSession cookieSession) {
+        Session session = DBSessionFactory.getSessionFactory().openSession();
+        Transaction tr = session.beginTransaction();
+        session.update(cookieSession);
+        tr.commit();
+        session.close();
+    }
+
+    @Override
+    public CookieSession findById(Long id) {
+        return DBSessionFactory.getSessionFactory().openSession().get(CookieSession.class, id);
+    }
 }

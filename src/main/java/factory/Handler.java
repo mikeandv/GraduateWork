@@ -1,6 +1,6 @@
 package factory;
 
-import entity.Request;
+import customexception.RestException;
 import entity.Response;
 
 import java.io.IOException;
@@ -8,6 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public interface Handler {
 
-    Response getResponseResult() throws IOException, InvocationTargetException, IllegalAccessException;
+    Response getResponseResult() throws IOException, InvocationTargetException, IllegalAccessException, RestException;
 }
 

@@ -1,6 +1,8 @@
 package entity;
 
+import com.google.gson.Gson;
 import com.sun.istack.NotNull;
+import dbhandler.dao.UserService;
 
 import javax.persistence.*;
 import java.util.*;
@@ -37,8 +39,7 @@ public class User {
 
     @OneToMany (fetch = FetchType.LAZY, mappedBy = "user")
     private Set<CookieSession> cookieSessions;
-
-
+    private static Gson gson = new Gson();
 
     public User() {
     }
@@ -110,5 +111,30 @@ public class User {
                 ", lastLoginDTM=" + lastLoginDTM +
                 ", cookieSessions=" + cookieSessions +
                 '}';
+    }
+
+    public static User userExistsCheck(String jsonData) {
+
+        User tmpUser = gson.fromJson(jsonData, User.class);
+
+        UserService userService = new UserService();
+        tmpUser = userService.findUser(tmpUser.getEmail());
+        if( !(tmpUser == null) ) {
+            tmpUser.setCookieSessions(userService.findCookieSessionByUserIdAndCode(tmpUser.getId(), "100"));
+        }
+        return tmpUser;
+    }
+    public static User createNewUser(String jsonData) {
+        Calendar c = Calendar.getInstance();
+        Date date = c.getTime();
+
+        User userTmp = gson.fromJson(jsonData, User.class);
+        userTmp.setCreateDTM(date);
+        userTmp.setLastLoginDTM(date);
+        UserService userService = new UserService();
+        userService.saveUser(userTmp);
+
+        User user = userService.findUser(userTmp.getEmail());
+        return user;
     }
 }

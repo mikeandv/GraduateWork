@@ -1,7 +1,6 @@
 package entity;
 
 import customexception.RestException;
-import serverconfig.ServerConfig;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -10,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Request {
-    private Map<String, String> header; // переделать на arraylist
+    private Map<String, String> header;
     private Map<String, String> params;
     private String body;
     private String url;
@@ -76,7 +75,6 @@ public class Request {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-//        sb.append("entity.Request:\n");
         sb.append(firstLine).append("\n");
 
         for(Map.Entry entry : header.entrySet()) {

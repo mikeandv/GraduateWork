@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login page</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/validate.js/0.12.0/validate.min.js"></script>
+    <script src="scripts/script.js"></script>
+</head>
+<body>
+    <!--input type="text" id="login" placeholder="Enter login">
+    <input type="submit" value="Check"-->
+    <form id="loginform">
+        <!--fieldset-->
+
+            <label name="email">E-mail:</label>
+            <input type="email" id="email" required>
+
+            <label name="password">Password:</label>
+            <input type="password" id="password" required><br>
+
+            <button class="button" type="button" id="button1" onclick="registerForm()">New user</button>
+            <button class="button" type="button" id="button2" onclick="logIn()">Login</button>
+            <!-- <button class="button" type="submit" id="button3" onclick="test()">Test button</button> -->
+
+            <br>
+            <div id="res"></div>
+
+    <!--/fieldset-->
+    </form>
+</body>
+</html>
